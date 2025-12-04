@@ -55,6 +55,7 @@
 		"vitest": "^4.0.10"
 	},
 	"dependencies": {
+		"better-auth": "^1.4.4",
 		"better-sqlite3": "^12.4.1",
 		"zod": "^4.1.13"
 	},

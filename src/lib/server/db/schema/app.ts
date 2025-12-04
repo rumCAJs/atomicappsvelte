@@ -1,11 +1,15 @@
 import type { UUID } from '$lib/types';
 import { sql } from 'drizzle-orm';
-import { index, integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
+import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { user } from './auth-schema';
 
-export const user = sqliteTable(
-	'user',
+export const profile = sqliteTable(
+	'profile',
 	{
 		id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id),
 		publicId: text('public_id').notNull().unique().$type<UUID>(),
 		name: text('name').notNull().unique(),
 		nick: text('nick').notNull(),
@@ -16,25 +20,21 @@ export const user = sqliteTable(
 		active: integer('active', { mode: 'boolean' }).notNull().default(false),
 		password: text('password').notNull()
 	},
-	(t) => ({
-		uniq_name: unique().on(t.nick, t.pin)
-	})
+	(t) => [uniqueIndex('uniq_nick_pin').on(t.nick, t.pin)]
 );
 
 export const userFriend = sqliteTable(
-	'user_friend',
+	'profile_friend',
 	{
-		userFrom: integer('user_from_id', { mode: 'number' }).references(() => user.id),
-		userTo: integer('user_to_id', { mode: 'number' }).references(() => user.id),
+		profileFrom: integer('profile_from_id', { mode: 'number' }).references(() => profile.id),
+		profileTo: integer('profile_to_id', { mode: 'number' }).references(() => profile.id),
 		acceptedAt: text('accepted_at'),
 		rejectedAt: text('rejected_at'),
 		createdAt: text('created_at')
 			.notNull()
 			.default(sql`CURRENT_TIMESTAMP`)
 	},
-	(t) => ({
-		uniq_name: unique().on(t.userFrom, t.userTo)
-	})
+	(t) => [uniqueIndex('uniq_profile_friend').on(t.profileFrom, t.profileTo)]
 );
 
 export const project = sqliteTable('project', {
@@ -49,7 +49,7 @@ export const project = sqliteTable('project', {
 	changedAt: text('changed_at').default(sql`CURRENT_TIMESTAMP`),
 	changedBy: integer('changed_by')
 		.notNull()
-		.references(() => user.id),
+		.references(() => profile.id),
 	version: integer('version').notNull().default(1)
 });
 
@@ -67,13 +67,13 @@ export const projectHistory = sqliteTable(
 			.default(sql`CURRENT_TIMESTAMP`),
 		createdBy: integer('created_by')
 			.notNull()
-			.references(() => user.id),
+			.references(() => profile.id),
 		version: integer('version').notNull().default(1)
 	},
-	(t) => ({
-		uniq_id_version: unique().on(t.projectId, t.version),
-		createdIdProjectHistoryIdx: index('created_project_history_idx').on(t.createdAt)
-	})
+	(t) => [
+		uniqueIndex('uniq_project_history_id_version').on(t.projectId, t.version),
+		index('created_project_history_idx').on(t.createdAt)
+	]
 );
 
 export const projectUser = sqliteTable(
@@ -81,16 +81,14 @@ export const projectUser = sqliteTable(
 	{
 		userId: integer('user_id')
 			.notNull()
-			.references(() => user.id),
+			.references(() => profile.id),
 		projectId: integer('project_id')
 			.notNull()
 			.references(() => project.id),
 		role: text('role').notNull(),
 		balance: integer('balance', { mode: 'number' }).notNull().default(0)
 	},
-	(t) => ({
-		uniq_project_user: unique().on(t.projectId, t.userId)
-	})
+	(t) => [uniqueIndex('uniq_project_user').on(t.projectId, t.userId)]
 );
 
 export const store = sqliteTable('store', {
@@ -117,7 +115,7 @@ export const storePurchase = sqliteTable('store_purchase', {
 		.references(() => storeItem.id)
 		.notNull(),
 	userId: integer('user_id')
-		.references(() => user.id)
+		.references(() => profile.id)
 		.notNull(),
 	price: integer('price').notNull(),
 	date: text('date')
@@ -139,7 +137,7 @@ export const task = sqliteTable('task', {
 		.default(sql`CURRENT_TIMESTAMP`),
 	createdBy: integer('created_by')
 		.notNull()
-		.references(() => user.id),
+		.references(() => profile.id),
 	changedAt: text('changed_at')
 		.notNull()
 		.default(sql`CURRENT_TIMESTAMP`),
@@ -161,13 +159,13 @@ export const taskHistory = sqliteTable(
 			.default(sql`CURRENT_TIMESTAMP`),
 		createdBy: integer('created_by')
 			.notNull()
-			.references(() => user.id),
+			.references(() => profile.id),
 		version: integer('version').notNull().default(1)
 	},
-	(t) => ({
-		unique_id_version: unique().on(t.taskId, t.version),
-		createdTaskHistoryIdx: index('created_task_history_idx').on(t.createdAt)
-	})
+	(t) => [
+		uniqueIndex('uniq_task_history_id_version').on(t.taskId, t.version),
+		index('created_task_history_idx').on(t.createdAt)
+	]
 );
 
 export const taskUser = sqliteTable('task_user', {
@@ -177,7 +175,7 @@ export const taskUser = sqliteTable('task_user', {
 	taskVersion: integer('task_version').notNull().default(1),
 	userId: integer('user_id')
 		.notNull()
-		.references(() => user.id),
+		.references(() => profile.id),
 	date: text('date')
 		.notNull()
 		.default(sql`CURRENT_TIMESTAMP`),
