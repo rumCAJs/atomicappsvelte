@@ -1,8 +1,27 @@
 import { auth } from '$lib/server/auth';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { building } from '$app/environment';
+import type { Handle } from '@sveltejs/kit';
 
-export async function handle({ event, resolve }) {
+export async function getSessionFromHeader(headers: Headers) {
+	const session = await auth.api.getSession({
+		headers
+	});
+
+	if (session) {
+		return {
+			user: session.user,
+			session: session.session
+		};
+	}
+	return {
+		user: null,
+		session: null
+	};
+}
+
+export type SessionFromHeader = Awaited<ReturnType<typeof getSessionFromHeader>>;
+export const handle: Handle = async ({ event, resolve }) => {
 	// Fetch current session from Better Auth
 	const session = await auth.api.getSession({
 		headers: event.request.headers
@@ -13,4 +32,4 @@ export async function handle({ event, resolve }) {
 		event.locals.user = session.user;
 	}
 	return svelteKitHandler({ event, resolve, auth, building });
-}
+};
