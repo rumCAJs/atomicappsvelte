@@ -9,3 +9,15 @@ if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 const client = new Database(env.DATABASE_URL);
 
 export const db = drizzle(client, { schema: { ...appSchema, ...authSchema } });
+
+export interface DbDep {
+	readonly db: typeof db;
+}
+
+export function createDbDep(databaseUrl: string): DbDep {
+	const client = new Database(databaseUrl);
+	const db = drizzle(client, { schema: { ...appSchema, ...authSchema } });
+	return {
+		db
+	};
+}
