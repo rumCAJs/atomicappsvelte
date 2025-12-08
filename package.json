@@ -57,6 +57,7 @@
 	"dependencies": {
 		"better-auth": "^1.4.4",
 		"better-sqlite3": "^12.4.1",
+		"effect": "^3.19.9",
 		"zod": "^4.1.13"
 	},
 	"pnpm": {

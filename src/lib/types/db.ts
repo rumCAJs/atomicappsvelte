@@ -1,8 +1,8 @@
-import type { profile, project, task, store, storeItem } from '$lib/server/db/schema/app';
+import type { project, task, store, storeItem, userProfile } from '$lib/server/db/schema/app';
 import type { user } from '$lib/server/db/schema/auth-schema';
 
 export type UserSelect = typeof user.$inferSelect;
-export type ProfileSelect = typeof profile.$inferSelect;
+export type UserProfileSelect = typeof userProfile.$inferSelect;
 export type ProjectSelect = typeof project.$inferSelect;
 export type TaskSelect = typeof task.$inferSelect;
 export type StoreSelect = typeof store.$inferSelect;
