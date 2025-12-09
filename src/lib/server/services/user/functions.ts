@@ -95,6 +95,22 @@ export function getByPublicId(uid: UserProfileSelect['publicId']) {
 	});
 }
 
+export function getByUserId(uid: UserProfileSelect['userId']) {
+	return Effect.gen(function* () {
+		const { query } = yield* DBService;
+		const userData = yield* pipe(
+			query((db) => db.select().from(userProfile).where(eq(userProfile.userId, uid)).all()),
+			Effect.flatMap((users) => {
+				if (users.length === 0) {
+					return Effect.fail(new UserNotFoundError());
+				}
+				return Effect.succeed(users);
+			})
+		);
+		return userData[0]!;
+	});
+}
+
 function createPin() {
 	return Number(
 		Math.round(Math.random() * 10000)

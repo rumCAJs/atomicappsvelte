@@ -1,5 +1,5 @@
 import { Context, Effect } from 'effect';
-import { changeInfo, create, exists, getByName, getByPublicId } from './functions';
+import { changeInfo, create, exists, getByName, getByPublicId, getByUserId } from './functions';
 
 export class UserService extends Context.Tag('UserService')<
 	UserService,
@@ -9,6 +9,7 @@ export class UserService extends Context.Tag('UserService')<
 		readonly getByName: typeof getByName;
 		readonly getByPublicId: typeof getByPublicId;
 		readonly changeInfo: typeof changeInfo;
+		readonly getByUserId: typeof getByUserId;
 	}
 >() {}
 
@@ -17,7 +18,8 @@ export const userService = UserService.of({
 	create,
 	getByName,
 	getByPublicId,
-	changeInfo
+	changeInfo,
+	getByUserId
 });
 
 export const userServiceProvider = Effect.provideService(UserService, userService);

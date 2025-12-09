@@ -64,3 +64,32 @@ export function createDBService(
 		dbServiceProvider: Effect.provideService(DBService, dbService)
 	};
 }
+
+export function createDBServiceFromDb(db: BetterSQLite3Database, connection: BSDatabase) {
+	const dbService = DBService.of({
+		connection,
+		db,
+		query: (cb) => {
+			return Effect.try({
+				try: () => cb(db),
+				catch: (e) => new DbError('something went wront in DB land', e)
+			});
+		},
+		queryPromise: (cb) => {
+			return Effect.tryPromise({
+				try: () => cb(db),
+				catch: (e) => {
+					console.error(e);
+					return new DbError('something went wront in DB land', e);
+				}
+			});
+		}
+	});
+
+	return {
+		db,
+		connection,
+		dbService,
+		dbServiceProvider: Effect.provideService(DBService, dbService)
+	};
+}

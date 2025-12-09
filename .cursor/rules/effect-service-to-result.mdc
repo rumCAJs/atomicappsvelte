@@ -1,0 +1,65 @@
+---
+alwaysApply: false
+---
+
+i have effect services from other project and i want to port them to this project. but, i dont want to use effect library, i want to use simple async function that will use result types and helpers from this repository in folder src/lib/result
+
+i will give you name of that service and code with effect.
+
+erorrs are in src/lib/errors folder
+
+i wan to use this patter of dependencies in my services
+
+```typescript
+export interface Time {
+  readonly now: () => number;
+}
+
+export interface TimeDep {
+  readonly time: Time;
+}
+
+export interface Logger {
+  readonly log: (message?: any, ...optionalParams: Array<any>) => void;
+}
+
+export interface LoggerDep {
+  readonly logger: Logger;
+}
+
+const timeUntilEvent =
+  // Partial makes LoggerDep optional
+  (deps: TimeDep & Partial<LoggerDep>) =>
+    (eventTimestamp: number): number => {
+      deps.logger?.log("Calculating time until event...");
+      const currentTime = deps.time.now();
+      return eventTimestamp - currentTime;
+    };
+
+/** Creates a {@link Time} using Date.now(). */
+export const createTime = (): Time => ({
+  now: () => Date.now(),
+});
+
+/** Creates a {@link Logger} using console.log. */
+export const createLogger = (): Logger => ({
+  log: (...args) => {
+    console.log(...args);
+  },
+});
+
+const enableLogging = true;
+
+const deps: TimeDep & Partial<LoggerDep> = {
+  time: createTime(),
+  // Inject a dependency conditionally
+  ...(enableLogging && { logger: createLogger() }),
+};
+
+timeUntilEvent(deps)(1742329310767);
+
+```
+
+so define dependencies and services as interfaces, but get the methods together so i can have it as Service.
+
+db service interface and method is already in src/lib/server/db

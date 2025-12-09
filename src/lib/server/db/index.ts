@@ -1,8 +1,9 @@
-import { drizzle } from 'drizzle-orm/better-sqlite3';
+import { BetterSQLite3Database, drizzle } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
 import * as appSchema from './schema/app';
 import * as authSchema from './schema/auth-schema';
 import { env } from '$env/dynamic/private';
+import { createDBService, createDBServiceFromDb } from '../services/db';
 
 if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 
@@ -21,3 +22,5 @@ export function createDbDep(databaseUrl: string): DbDep {
 		db
 	};
 }
+
+export const dbService = createDBServiceFromDb(db as any as BetterSQLite3Database, client);
