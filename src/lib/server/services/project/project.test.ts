@@ -6,8 +6,9 @@ import { eq } from 'drizzle-orm';
 import { StoreService, storeServiceProvider } from '../store';
 import { projectUser } from '$lib/server/db/schema/app';
 import { unlinkSync } from 'node:fs';
-import { UserService, userServiceProvider } from '../user';
 import { TaskService, taskServiceProvider } from '../task';
+import { createTestUser } from '../testutils';
+import { UserService, userServiceProvider } from '../user';
 
 const dbName = 'projecttest.db';
 try {
@@ -17,15 +18,18 @@ try {
 	//console.error(e);
 }
 
-const { dbService } = createDBService(dbName, true, './drizzle');
+const { dbService, db } = createDBService(dbName, true, './drizzle');
 const dbServiceProvider = Effect.provideService(DBService, dbService);
+
+let user: { id: string; email: string; name: string };
 
 describe('Project service', () => {
 	beforeAll(async () => {
+		user = await createTestUser(db);
 		await Effect.runPromise(
-			Effect.gen(function* () {
-				const { create } = yield* UserService;
-				yield* create('a', 'a', 'a');
+			Effect.gen(function* (_) {
+				const { create } = yield* _(UserService);
+				yield* create('a', 'a', user.id);
 			}).pipe(userServiceProvider, dbServiceProvider)
 		);
 	});

@@ -6,6 +6,7 @@ import { unlinkSync } from 'node:fs';
 import { UserService, userServiceProvider } from '../user';
 import { beforeEach } from 'node:test';
 import { userFriend } from '$lib/server/db/schema/app';
+import { createTestUser } from '../testutils';
 
 const dbName = 'friendtest.db';
 try {
@@ -15,24 +16,27 @@ try {
 	//console.error(e);
 }
 
-const { dbService } = createDBService(dbName, true, './drizzle');
+const { dbService, db } = createDBService(dbName, true, './drizzle');
 const dbServiceProvider = Effect.provideService(DBService, dbService);
-
+let user1: { id: string; email: string; name: string };
+let user2: { id: string; email: string; name: string };
 let user1Id: string = '';
 let user2Id: string = '';
 
 describe('Friends service', () => {
 	beforeAll(async () => {
+		user1 = await createTestUser(db, 'test1@test.com', 'Test User 1');
+		user2 = await createTestUser(db, 'test2@test.com', 'Test User 2');
 		await Effect.runPromise(
 			Effect.gen(function* () {
 				const { create } = yield* UserService;
-				const u1 = yield* create('a', 'a', 'a');
+				const u1 = yield* create('a', 'a', user1.id);
 				user1Id = Option.match(u1, {
 					onNone: () => '',
 					onSome: (u) => u.publicId
 				});
 
-				const u2 = yield* create('b', 'b', 'b');
+				const u2 = yield* create('b', 'b', user2.id);
 				user2Id = Option.match(u2, {
 					onNone: () => '',
 					onSome: (u) => u.publicId
@@ -41,7 +45,7 @@ describe('Friends service', () => {
 		);
 	});
 	afterAll(async () => {
-		unlinkSync(dbName);
+		// unlinkSync(dbName);
 	});
 
 	beforeEach(async () => {

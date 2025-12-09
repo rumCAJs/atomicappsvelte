@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Effect, Option } from 'effect';
 import { DBService, createDBService } from '../db';
 import { ProjectService, projectServiceProvider } from '../project';
@@ -8,6 +8,7 @@ import { eq } from 'drizzle-orm';
 import { getFirstE } from '../utils';
 import { unlinkSync } from 'node:fs';
 import { projectUser } from '$lib/server/db/schema/app';
+import { createTestAuth, createTestUser } from '../testutils';
 
 const dbName = 'storetest.db';
 try {
@@ -17,10 +18,18 @@ try {
 	//console.error(e);
 }
 
-const { dbService } = createDBService(dbName, true, './drizzle');
+const { dbService, db } = createDBService(dbName, true, './drizzle');
 const dbServiceProvider = Effect.provideService(DBService, dbService);
 
+let user: { id: string; email: string; name: string };
 describe('Store service', () => {
+	beforeAll(async () => {
+		user = await createTestUser(db);
+		// Effect.gen(function* (_) {
+		// 	const { create } = yield* _(UserService);
+		// 	yield* create('a', 'a', user.id);
+		// }).pipe(userServiceProvider, dbServiceProvider);
+	});
 	afterAll(async () => {
 		//unlinkSync(dbName);
 	});
@@ -31,7 +40,7 @@ describe('Store service', () => {
 				const userService = yield* _(UserService);
 				const dbService = yield* _(DBService);
 				const u = yield* _(
-					userService.create('storeuser', 'su', 'lol'),
+					userService.create('storeuser', 'su', user.id),
 					Effect.map((u) =>
 						Option.match(u, {
 							onNone: () => undefined,
@@ -39,7 +48,7 @@ describe('Store service', () => {
 						})
 					)
 				);
-				expect(u).toBeTruthy();
+				expect(u?.publicId).toBeTruthy();
 				const { create } = yield* _(ProjectService);
 				const { getForProject, addItem, buyItem } = yield* _(StoreService);
 				const p = yield* _(create('storeservicetest', 1));

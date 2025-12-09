@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
 import { DBService } from '$lib/server/services/db';
-import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm';
+import { and, eq, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { UserService } from '../user';
 import { UUID } from '$lib/types';
 import { FriendError } from '$lib/errors';
@@ -26,7 +26,7 @@ export function getFriends(userId: UUID, state: 'accepted' | 'requested' | 'all'
 					.innerJoin(userProfile, eq(userFriend.userTo, userProfile.id))
 					.where(
 						and(
-							eq(userFriend.userFrom, userData.id),
+							or(eq(userFriend.userFrom, userData.id), eq(userFriend.userTo, userData.id)),
 							state === 'all'
 								? undefined
 								: state === 'accepted'
@@ -85,31 +85,19 @@ export function requestFriend(userId: UUID, friendId: UUID) {
 					.execute()
 			);
 		} else {
-			yield* queryPromise((db) =>
-				db
-					.insert(userFriend)
-					.values({
-						userFrom: friendData.id,
-						userTo: userData.id,
-						acceptedAt: sql`CURRENT_TIMESTAMP`,
-						rejectedAt: sql`NULL`
-					})
-					.execute()
+			yield* _(
+				queryPromise((db) =>
+					db
+						.insert(userFriend)
+						.values({
+							userFrom: userData.id,
+							userTo: friendData.id
+						})
+						.returning()
+						.execute()
+				)
 			);
 		}
-
-		yield* _(
-			queryPromise((db) =>
-				db
-					.insert(userFriend)
-					.values({
-						userFrom: userData.id,
-						userTo: friendData.id
-					})
-					.returning()
-					.execute()
-			)
-		);
 
 		return {
 			state: 'ok',

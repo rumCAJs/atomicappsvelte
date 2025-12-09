@@ -87,7 +87,7 @@ function addItem({ storeId, uid, name, price }: AddItem) {
 
 function buyItem(itemId: StoreItemSelect['id'], uid: UserProfileSelect['publicId']) {
 	return Effect.gen(function* (_) {
-		const { query, queryPromise } = yield* _(DBService);
+		const { query } = yield* _(DBService);
 		const { getByPublicId } = yield* _(UserService);
 		const projectService = yield* _(ProjectService);
 		// does not work, dkw
@@ -139,25 +139,23 @@ function buyItem(itemId: StoreItemSelect['id'], uid: UserProfileSelect['publicId
 		);
 
 		yield* _(
-			queryPromise((db) =>
-				db.transaction(async (tx) => {
-					await tx
-						.insert(storePurchase)
+			query((db) =>
+				db.transaction((tx) => {
+					tx.insert(storePurchase)
 						.values({
 							price: item.price,
 							itemId: item.id,
 							userId: u.id
 						})
-						.execute();
-					await tx
-						.update(projectUser)
+						.run();
+					tx.update(projectUser)
 						.set({
 							balance: sql`${projectUser.balance} - ${item.price}`
 						})
 						.where(
 							and(eq(projectUser.projectId, itemStore.projectId), eq(projectUser.userId, u.id))
 						)
-						.execute();
+						.run();
 				})
 			)
 		);
