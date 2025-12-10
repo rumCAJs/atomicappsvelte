@@ -1,0 +1,7 @@
+---
+alwaysApply: false
+---
+
+i have server actions from different app (or same app but written in nextjs) and i want to port that actions to svelte remote functions, same as it already is in src/server/remote/user.remote.ts file for user and profile actions.
+
+I will send you react action and you will port that to this pattern in this file
