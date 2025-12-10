@@ -26,7 +26,14 @@ function getCreateProjectProgram({
 	return Effect.gen(function* () {
 		const pService = yield* ProjectService;
 		const userService = yield* UserService;
-		const u = yield* userService.getByPublicId(user.id);
+
+		// TODO: remove this after testing
+		yield* userService.createUserProfile({
+			name: 'test name',
+			nick: 'test nick',
+			userId: user.id
+		});
+		const u = yield* userService.getByUserId(user.id);
 		const p = yield* pService.create(body.name, u.id);
 		return p;
 	});
@@ -38,16 +45,20 @@ export const createProject = command(createProjectSchema, async (data) => {
 	if (!user) {
 		throw new Error('Unauthorized');
 	}
+	try {
+		const ret = await Effect.runPromise(
+			getCreateProjectProgram({ user, body: data }).pipe(
+				userServiceProvider,
+				projectServiceProvider,
+				dbService.dbServiceProvider
+			)
+		);
 
-	const ret = await Effect.runPromise(
-		getCreateProjectProgram({ user, body: data }).pipe(
-			userServiceProvider,
-			projectServiceProvider,
-			dbService.dbServiceProvider
-		)
-	);
-
-	return ret;
+		return ret;
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
 });
 
 // ============ UPDATE PROJECT ============
@@ -127,7 +138,7 @@ function getGetProjectProgram({
 		const userService = yield* UserService;
 		const storeService = yield* StoreService;
 
-		const u = yield* userService.getByPublicId(user.id);
+		const u = yield* userService.getByUserId(user.id);
 		const p = yield* pService.getById(body.id as UUID);
 		const pu = yield* pService.getProjectUser(p.id, u.id);
 
@@ -183,7 +194,7 @@ function getGetUserProjectsProgram({ user }: { user: UserAuthCommand }) {
 	return Effect.gen(function* () {
 		const pService = yield* ProjectService;
 		const userService = yield* UserService;
-		const u = yield* userService.getByPublicId(user.id);
+		const u = yield* userService.getByUserId(user.id);
 		const p = yield* pService.getProjectsForUser(u.id);
 		return p.map((p) => ({
 			balance: p.project_user.balance,

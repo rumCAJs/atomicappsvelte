@@ -33,7 +33,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 		event.locals.session = session.session;
 		event.locals.user = session.user;
 	}
-	console.log('event.url.pathname', event.url.pathname);
 
 	if (
 		!unauthenticatedRoutes.some((route) => event.url.pathname.startsWith(route)) &&

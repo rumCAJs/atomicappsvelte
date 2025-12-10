@@ -151,3 +151,43 @@ export function create(name: string, nick: string, userId: UserSelect['id']) {
 		return Option.none();
 	});
 }
+
+export function createUserProfile(data: { name: string; nick: string; userId: UserSelect['id'] }) {
+	return Effect.gen(function* () {
+		const { query, queryPromise } = yield* DBService;
+
+		const existingProfile = yield* Effect.match(getByUserId(data.userId), {
+			onFailure: () => Option.none(),
+			onSuccess: (profile) => Option.some(profile)
+		});
+
+		if (Option.isSome(existingProfile)) {
+			return existingProfile;
+		}
+
+		const pin = yield* getUniquePinForNick(data.nick);
+
+		yield* queryPromise((db) =>
+			db
+				.insert(userProfile)
+				.values({
+					userId: data.userId,
+					name: data.name,
+					publicId: makeUUID(),
+					nick: data.nick,
+					pin
+				})
+				.execute()
+		);
+
+		const profileData = yield* query((db) =>
+			db.select().from(userProfile).where(eq(userProfile.userId, data.userId)).all()
+		);
+
+		if (profileData && !!profileData[0]) {
+			return profileData[0];
+		}
+
+		return undefined;
+	});
+}

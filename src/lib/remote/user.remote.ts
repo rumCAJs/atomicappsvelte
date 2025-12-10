@@ -36,3 +36,46 @@ export const addLike = command(schema, async (data) => {
 
 	return ret;
 });
+
+const createUserProfileSchema = z.object({
+	name: z.string().min(1).max(100),
+	nick: z.string().min(5).max(50)
+});
+
+function createUserProfileProgram({
+	user,
+	body
+}: {
+	user: UserAuthCommand;
+	body: z.infer<typeof createUserProfileSchema>;
+}) {
+	return Effect.gen(function* () {
+		const userS = yield* UserService;
+		const profile = yield* userS.createUserProfile({
+			name: body.name,
+			nick: body.nick,
+			userId: user.id
+		});
+		return {
+			success: true,
+			profile
+		};
+	});
+}
+
+export const createUserProfile = command(createUserProfileSchema, async (data) => {
+	const { request } = getRequestEvent();
+	const user = await authCommand(request.headers);
+	if (!user) {
+		throw new Error('Unauthorized');
+	}
+
+	const ret = await Effect.runPromise(
+		createUserProfileProgram({ user, body: data }).pipe(
+			userServiceProvider,
+			dbService.dbServiceProvider
+		)
+	);
+
+	return ret;
+});

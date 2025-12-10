@@ -4,13 +4,21 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
 	import { Loader2 } from '@lucide/svelte';
+	import { createProject } from '$lib/remote/project/project.remote';
 
 	let isDialogOpen = $state(false);
 	let isPending = $state(false);
 	let formData = $state({ name: '', description: '' });
 
-	function createProject() {
+	function showDialog() {
 		isDialogOpen = true;
+	}
+
+	async function createProjectaaa() {
+		isDialogOpen = false;
+		isPending = true;
+		await createProject({ name: 'test project1', description: 'test description1' });
+		isPending = false;
 	}
 </script>
 
@@ -24,7 +32,7 @@
 			<Input class="mt-8" name="description" placeholder="" required />
 		</Card.Content>
 		<Card.Footer>
-			<Button onclick={createProject} class="w-full" disabled={isPending}>
+			<Button onclick={showDialog} class="w-full" disabled={isPending}>
 				{#if isPending}
 					<Loader2 class="animate-spin" />
 				{:else}
@@ -45,7 +53,7 @@
 		</Dialog.Header>
 		<Dialog.Footer>
 			<Button variant="outline" onclick={() => (isDialogOpen = false)}>Cancel</Button>
-			<Button>Confirm</Button>
+			<Button onclick={createProjectaaa}>Confirm</Button>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
