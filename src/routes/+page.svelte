@@ -1,39 +1,45 @@
 <script lang="ts">
-  import { authClient } from "$lib/auth-client";
-	import SignupForm from "$lib/components/signup-form.svelte";
-  const session = authClient.useSession();
+	import { authClient } from '$lib/auth-client';
+	import AnimatedCard from '$lib/components/animated-card.svelte';
+	import SignupForm from '$lib/components/signup-form.svelte';
+	const session = authClient.useSession();
 </script>
+
 <h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>    <div>
+<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<div>
+	<div class="flex flex-row gap-4">
+		<AnimatedCard><div class="mx-4 w-[300px] text-2xl font-bold">dasdada</div></AnimatedCard>
+		<AnimatedCard><div class="mx-4 w-[300px] text-2xl font-bold">asdada</div></AnimatedCard>
+	</div>
+	<SignupForm />
 
-  <SignupForm />
-  
-    {#if $session.data}
-      <div>
-        <p>
-          {$session.data.user.name}
-        </p>
-        <button
-          on:click={async () => {
-            await authClient.signOut();
-          }}
-        >
-          Sign Out
-        </button>
-      </div>
-    {:else}
-      <button
-        on:click={async () => {
-            // authClient.signUp.email({
+	{#if $session.data}
+		<div>
+			<p>
+				{$session.data.user.name}
+			</p>
+			<button
+				on:click={async () => {
+					await authClient.signOut();
+				}}
+			>
+				Sign Out
+			</button>
+		</div>
+	{:else}
+		<button
+			on:click={async () => {
+				// authClient.signUp.email({
 
-            // })
-          await authClient.signIn.email({
-            email: 'test@test.com',
-            password: 'testGA42!'
-          });
-        }}
-      >
-        Continue with GitHub
-      </button>
-    {/if}
-  </div>
+				// })
+				await authClient.signIn.email({
+					email: 'test@test.com',
+					password: 'testGA42!'
+				});
+			}}
+		>
+			Continue with GitHub
+		</button>
+	{/if}
+</div>
