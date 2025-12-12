@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import { command, getRequestEvent } from '$app/server';
+import { command, getRequestEvent, query } from '$app/server';
 import { authCommand, type UserAuthCommand } from '../utils';
 import { ProjectService, projectServiceProvider } from '$lib/server/services/project';
 import { UserService, userServiceProvider } from '$lib/server/services/user';
@@ -169,7 +169,7 @@ function getGetProjectProgram({
 
 export type GetProjectResult = Effect.Effect.Success<ReturnType<typeof getGetProjectProgram>>;
 
-export const getProject = command(getProjectSchema, async (data) => {
+export const getProject = query(getProjectSchema, async (data) => {
 	const { request } = getRequestEvent();
 	const user = await authCommand(request.headers);
 	if (!user) {
@@ -208,7 +208,7 @@ export type GetUserProjectsResult = Effect.Effect.Success<
 	ReturnType<typeof getGetUserProjectsProgram>
 >;
 
-export const getUserProjects = command(async () => {
+export const getUserProjects = query(async () => {
 	const { request } = getRequestEvent();
 	const user = await authCommand(request.headers);
 	if (!user) {

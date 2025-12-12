@@ -1,0 +1,5 @@
+---
+alwaysApply: false
+---
+
+i will give you page in react and next js, and you will create me that page in sveltekit in this project. react site was using server actions, but svelte will use server load function for that page that will call appropriette commands and queries in src/lib/remote folder, so look there if there is query for that first before you write your own
