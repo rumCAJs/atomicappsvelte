@@ -8,6 +8,7 @@ import { Effect } from 'effect';
 import { dbService } from '$lib/server/db';
 import { ProjectUserError } from '$lib/errors';
 import type { UUID } from '$lib/types';
+import { getProject } from './project.remote';
 
 // ============ CREATE TASK ============
 
@@ -156,6 +157,8 @@ export const completeTask = command(completeTaskSchema, async (data) => {
 			dbService.dbServiceProvider
 		)
 	);
+
+	await getProject({ id: data.projectId }).refresh();
 
 	return ret;
 });

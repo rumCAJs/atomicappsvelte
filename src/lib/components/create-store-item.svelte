@@ -25,6 +25,8 @@
 		try {
 			await addStoreItem({ storeId, name, price });
 			goto(`/project/${projectId}`);
+		} catch (e) {
+			console.error(e);
 		} finally {
 			isPending = false;
 		}

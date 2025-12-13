@@ -39,4 +39,3 @@ export const load: PageServerLoad = async ({ request, params, url }) => {
 		throw error(404, 'Project not found');
 	}
 };
-

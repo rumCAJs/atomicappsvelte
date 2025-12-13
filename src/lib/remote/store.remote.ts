@@ -3,7 +3,7 @@ import { command, getRequestEvent } from '$app/server';
 import { authCommand, type UserAuthCommand } from './utils';
 import { StoreService, storeServiceProvider } from '$lib/server/services/store';
 import { projectServiceProvider } from '$lib/server/services/project';
-import { userServiceProvider } from '$lib/server/services/user';
+import { UserService, userServiceProvider } from '$lib/server/services/user';
 import { Effect } from 'effect';
 import { dbService } from '$lib/server/db';
 
@@ -24,11 +24,16 @@ function getAddStoreItemProgram({
 }) {
 	return Effect.gen(function* () {
 		const storeService = yield* StoreService;
+		const userService = yield* UserService;
+		const u = yield* userService.getByUserId(user.id);
+		if (!u) {
+			return Effect.fail(new Error('User not found'));
+		}
 		return yield* storeService.addItem({
 			storeId: body.storeId,
 			name: body.name,
 			price: body.price,
-			uid: user.id
+			uid: u.publicId
 		});
 	});
 }

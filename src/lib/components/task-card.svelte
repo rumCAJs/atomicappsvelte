@@ -4,6 +4,8 @@
 	import AnimatedCard from './animated-card.svelte';
 	import { cn } from '$lib/utils.js';
 	import type { TaskSelect } from '$lib/types/db';
+	import { completeTask } from '$lib/remote/project/task.remote';
+	import { getProject } from '$lib/remote/project/project.remote';
 
 	interface Props extends TaskSelect {
 		isLoading?: boolean;
@@ -19,6 +21,17 @@
 		isActive = true,
 		isLoading = false
 	}: Props = $props();
+
+	let isCompleting = $state(false);
+
+	async function handleCompleteTask() {
+		isCompleting = true;
+		try {
+			await completeTask({ taskId: id, projectId: projectPublicId });
+		} finally {
+			isCompleting = false;
+		}
+	}
 </script>
 
 <AnimatedCard class={cn('dark:bg-gray-800', !isActive && 'opacity-50')}>
@@ -38,6 +51,8 @@
 	</Card.Content>
 	<Card.Footer class="flex flex-col gap-2 lg:flex-row">
 		<a href={`/project/${projectPublicId}/task/${id}`}>View Details</a>
-		<Button variant="outline" disabled={isLoading}>Complete task</Button>
+		<Button variant="outline" disabled={isLoading || isCompleting} onclick={handleCompleteTask}>
+			{isCompleting ? 'Completing...' : 'Complete task'}
+		</Button>
 	</Card.Footer>
 </AnimatedCard>

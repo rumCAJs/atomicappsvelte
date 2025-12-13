@@ -1,5 +1,11 @@
 import { Context, Effect } from 'effect';
-import type { ProjectSelect, StoreItemSelect, StoreSelect, UserProfileSelect } from '$lib/types/db';
+import type {
+	ProjectSelect,
+	StoreItemSelect,
+	StoreSelect,
+	UserProfileSelect,
+	UserSelect
+} from '$lib/types/db';
 import { DBService } from '$lib/server/services/db';
 import { projectUser, store, storeItem, storePurchase } from '$lib/server/db/schema/app';
 import { and, eq, isNotNull, sql } from 'drizzle-orm';
@@ -7,6 +13,7 @@ import { UserService } from '$lib/server/services/user';
 import { ProjectService } from '$lib/server/services/project';
 import { getFirstE } from '$lib/server/services/utils';
 import { StoreNotFoundError, StoreError } from '$lib/errors';
+import { getByUserId } from '../user/functions';
 
 function create() {}
 
@@ -85,7 +92,7 @@ function addItem({ storeId, uid, name, price }: AddItem) {
 	});
 }
 
-function buyItem(itemId: StoreItemSelect['id'], uid: UserProfileSelect['publicId']) {
+function buyItem(itemId: StoreItemSelect['id'], uid: UserSelect['id']) {
 	return Effect.gen(function* (_) {
 		const { query } = yield* _(DBService);
 		const { getByPublicId } = yield* _(UserService);
@@ -112,10 +119,10 @@ function buyItem(itemId: StoreItemSelect['id'], uid: UserProfileSelect['publicId
 			Effect.flatMap(getFirstE)
 		);
 
-		const u = yield* _(getByPublicId(uid));
+		const u = yield* _(getByUserId(uid));
 		yield* _(
 			projectService.isUserInProject({
-				userProfileId: uid,
+				userProfileId: u.publicId,
 				projectId: itemStore.projectId
 			})
 		);
