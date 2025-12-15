@@ -28,8 +28,8 @@
 	}
 </script>
 
-<AnimatedCard variant="store" direction="left" class={cn('dark:bg-gray-800', className)}>
-	<Card.Header>
+<AnimatedCard variant="store" direction="left" class={cn(className)}>
+	<Card.Header class="w-full">
 		<Card.Title>{name}</Card.Title>
 	</Card.Header>
 	<Card.Content>

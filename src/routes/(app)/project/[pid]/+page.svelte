@@ -5,44 +5,64 @@
 	import AddIcon from '$lib/components/add-icon.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import ShoppingBasketIcon from '@lucide/svelte/icons/shopping-basket';
+	import { getProject } from '$lib/remote/project/project.remote.js';
 
 	let { data } = $props();
+
+	let projectQuery = $derived(
+		getProject({
+			id: data.projectId,
+			showOnlyActive: !data.isShowingAll
+		})
+	);
+
+	$inspect(data.isShowingAll);
 </script>
 
 <div class="flex w-full flex-col gap-8">
-	<ProjectCard
-		project={data.project}
-		projectId={data.projectId}
-		balance={data.balance}
-		isUserAdmin={data.role === 'admin'}
-	/>
+	{#if projectQuery.error}
+		<p>oops!</p>
+	{:else if projectQuery.loading}
+		<p>loading...</p>
+	{:else if projectQuery.current}
+		<ProjectCard
+			project={projectQuery.current.project}
+			projectId={data.projectId}
+			balance={projectQuery.current.balance}
+			isUserAdmin={data.role === 'admin'}
+		/>
 
-	<ProjectTaskList
-		tasks={data.tasks}
-		projectId={data.projectId}
-		isUserAdmin={data.role === 'admin'}
-		isShowingAll={data.isShowingAll}
-	/>
+		<ProjectTaskList
+			tasks={projectQuery.current.tasks}
+			projectId={projectQuery.current.project.publicId}
+			isUserAdmin={projectQuery.current.role === 'admin'}
+			isShowingAll={data.isShowingAll}
+		/>
 
-	<Card.Root class="bg-gray-50">
-		<Card.Header>
-			<Card.Title class="flex justify-between gap-2">
-				<div class="flex gap-2">
-					<ShoppingBasketIcon />
-					Store - {data.store.info.name}
+		<Card.Root class="bg-card text-card-foreground">
+			<Card.Header>
+				<Card.Title class="flex justify-between gap-2">
+					<div class="flex gap-2">
+						<ShoppingBasketIcon />
+						Store - {projectQuery.current.store.info.name}
+					</div>
+					<AddIcon
+						href={`/project/${projectQuery.current.project.publicId}/store/${projectQuery.current.store.info.id}/create-item`}
+						title="Create new item"
+					/>
+				</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				<div class="grid gap-4 md:grid-cols-3">
+					{#each projectQuery.current.store.items as item (item.id)}
+						<StoreItemCard
+							{...item}
+							projectId={projectQuery.current.project.publicId}
+							storeId={projectQuery.current.store.info.id}
+						/>
+					{/each}
 				</div>
-				<AddIcon
-					href={`/project/${data.projectId}/store/${data.store.info.id}/create-item`}
-					title="Create new item"
-				/>
-			</Card.Title>
-		</Card.Header>
-		<Card.Content>
-			<div class="grid gap-4 md:grid-cols-3">
-				{#each data.store.items as item (item.id)}
-					<StoreItemCard {...item} projectId={data.projectId} storeId={data.store.info.id} />
-				{/each}
-			</div>
-		</Card.Content>
-	</Card.Root>
+			</Card.Content>
+		</Card.Root>
+	{/if}
 </div>

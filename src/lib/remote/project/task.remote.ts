@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import { command, getRequestEvent } from '$app/server';
+import { command, form, getRequestEvent } from '$app/server';
 import { authCommand, type UserAuthCommand } from '../utils';
 import { ProjectService, projectServiceProvider } from '$lib/server/services/project';
 import { TaskService, taskServiceProvider } from '$lib/server/services/task';
@@ -158,7 +158,7 @@ export const completeTask = command(completeTaskSchema, async (data) => {
 		)
 	);
 
-	await getProject({ id: data.projectId }).refresh();
+	await getProject({ id: data.projectId, showOnlyActive: true }).refresh();
 
 	return ret;
 });

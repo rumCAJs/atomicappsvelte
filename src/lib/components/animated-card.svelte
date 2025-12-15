@@ -1,18 +1,18 @@
 <script lang="ts">
-	import type { HTMLAttributes } from "svelte/elements";
-	import { Card } from "$lib/components/ui/card";
-	import { cn } from "$lib/utils";
+	import type { HTMLAttributes } from 'svelte/elements';
+	import { Card } from '$lib/components/ui/card';
+	import { cn } from '$lib/utils';
 
 	interface Props extends HTMLAttributes<HTMLDivElement> {
-		variant?: "default" | "store";
-		direction?: "right" | "left";
+		variant?: 'default' | 'store';
+		direction?: 'right' | 'left';
 		class?: string;
-		children?: import("svelte").Snippet;
+		children?: import('svelte').Snippet;
 	}
 
 	let {
-		variant = "default",
-		direction = "right",
+		variant = 'default',
+		direction = 'right',
 		class: className,
 		children,
 		...restProps
@@ -31,7 +31,7 @@
 				const hw = height / width;
 				const p = Math.min(Math.round((100 * hw) / 2), 50);
 				const target = entry.target as HTMLDivElement;
-				target.style.setProperty("--card-before-width", `${p}%`);
+				target.style.setProperty('--card-before-width', `${p}%`);
 			}
 		});
 
@@ -46,22 +46,22 @@
 	});
 
 	const variantClasses = {
-		default: "[--card-gradient-from:#0074d9] [--card-gradient-to:#01ff70]",
-		store: "[--card-gradient-from:#21D4FD] [--card-gradient-to:#B721FF]",
+		default: '[--card-gradient-from:#0074d9] [--card-gradient-to:#01ff70]',
+		store: '[--card-gradient-from:#21D4FD] [--card-gradient-to:#B721FF]'
 	};
 
 	const directionClasses = {
-		right: "[--card-rotate-to:405deg]",
-		left: "[--card-rotate-to:-315deg]",
+		right: '[--card-rotate-to:405deg]',
+		left: '[--card-rotate-to:-315deg]'
 	};
 </script>
 
 <Card
 	bind:ref={rootElement}
 	class={cn(
-		"animated-card",
-		"bg-white",
-		"hover:border-gray-300",
+		'animated-card',
+		'bg-card text-card-foreground',
+		'hover:border-border',
 		variantClasses[variant],
 		directionClasses[direction],
 		className
@@ -91,7 +91,7 @@
 	}
 
 	:global(.animated-card::before) {
-		content: "";
+		content: '';
 		position: absolute;
 		width: var(--card-before-width);
 		height: 380%;
@@ -123,7 +123,7 @@
 
 	:global(.animated-card::after) {
 		--card-inset: 2px;
-		content: "";
+		content: '';
 		position: absolute;
 		inset: var(--card-inset);
 		z-index: -1;

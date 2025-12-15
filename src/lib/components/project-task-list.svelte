@@ -19,7 +19,7 @@
 	let { tasks, className, projectId, isUserAdmin, isShowingAll = false }: Props = $props();
 </script>
 
-<Card.Root class={cn('bg-gray-50', className)}>
+<Card.Root class={cn('bg-card text-card-foreground', className)}>
 	<Card.Header>
 		<Card.Title class="flex justify-between">
 			<div class="flex gap-2">
@@ -43,7 +43,7 @@
 	<Card.Content class="px-4 pt-0">
 		<div class="grid gap-4 md:grid-cols-3">
 			{#each tasks as task (task.id)}
-				<TaskCard projectPublicId={projectId} {...task} />
+				<TaskCard projectPublicId={projectId} {...task} {isShowingAll} />
 			{/each}
 		</div>
 	</Card.Content>

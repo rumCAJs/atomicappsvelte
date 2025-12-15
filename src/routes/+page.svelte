@@ -5,13 +5,7 @@
 	const session = authClient.useSession();
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
 <div>
-	<div class="flex flex-row gap-4">
-		<AnimatedCard><div class="mx-4 w-[300px] text-2xl font-bold">dasdada</div></AnimatedCard>
-		<AnimatedCard><div class="mx-4 w-[300px] text-2xl font-bold">asdada</div></AnimatedCard>
-	</div>
 	<SignupForm />
 
 	{#if $session.data}

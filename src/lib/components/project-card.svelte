@@ -17,7 +17,7 @@
 	let { className, projectId, project, balance, isUserAdmin }: Props = $props();
 </script>
 
-<Card.Root class={cn('bg-gray-50', className)}>
+<Card.Root class={cn('bg-card text-card-foreground', className)}>
 	<Card.Header class="flex flex-row items-center justify-between gap-4">
 		<div class="flex items-center gap-2">
 			<HomeIcon class="h-8 w-8" />

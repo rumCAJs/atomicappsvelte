@@ -10,6 +10,7 @@
 	interface Props extends TaskSelect {
 		isLoading?: boolean;
 		projectPublicId: string;
+		isShowingAll?: boolean;
 	}
 
 	let {
@@ -19,23 +20,24 @@
 		id,
 		description,
 		isActive = true,
-		isLoading = false
+		isLoading = false,
+		isShowingAll = false
 	}: Props = $props();
 
 	let isCompleting = $state(false);
 
-	async function handleCompleteTask() {
-		isCompleting = true;
-		try {
-			await completeTask({ taskId: id, projectId: projectPublicId });
-		} finally {
-			isCompleting = false;
-		}
-	}
+	// async function handleCompleteTask() {
+	// 	isCompleting = true;
+	// 	try {
+	// 		await completeTask({ taskId: id, projectId: projectPublicId });
+	// 	} finally {
+	// 		isCompleting = false;
+	// 	}
+	// }
 </script>
 
-<AnimatedCard class={cn('dark:bg-gray-800', !isActive && 'opacity-50')}>
-	<Card.Header>
+<AnimatedCard class={cn(!isActive && 'opacity-50')}>
+	<Card.Header class="w-full">
 		<Card.Title class={cn(!isActive && 'line-through')}>
 			{name}
 		</Card.Title>
@@ -51,8 +53,27 @@
 	</Card.Content>
 	<Card.Footer class="flex flex-col gap-2 lg:flex-row">
 		<a href={`/project/${projectPublicId}/task/${id}`}>View Details</a>
-		<Button variant="outline" disabled={isLoading || isCompleting} onclick={handleCompleteTask}>
+		<!-- <form
+			{...completeTask.enhance(async ({ form, data, submit }) => {
+				try {
+					await submit();
+					form.reset();
+
+					//showToast('Successfully published!');
+				} catch (error) {
+					//showToast('Oh no! Something went wrong');
+				}
+			})}
+		>
+			<input type="hidden" name="taskId" value={id} />
+			<input type="hidden" name="projectId" value={projectPublicId} /> -->
+		<Button
+			variant="outline"
+			disabled={isLoading || isCompleting}
+			onclick={() => completeTask({ taskId: id, projectId: projectPublicId })}
+		>
 			{isCompleting ? 'Completing...' : 'Complete task'}
 		</Button>
+		<!-- </form> -->
 	</Card.Footer>
 </AnimatedCard>
