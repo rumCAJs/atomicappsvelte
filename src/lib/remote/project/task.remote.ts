@@ -1,14 +1,21 @@
 import { z } from 'zod/v4';
 import { command, form, getRequestEvent } from '$app/server';
-import { authCommand, type UserAuthCommand } from '../utils';
+import {
+	AppError,
+	parseEffectError,
+	authCommand,
+	type UserAuthCommand,
+	parseExitError
+} from '../utils';
 import { ProjectService, projectServiceProvider } from '$lib/server/services/project';
 import { TaskService, taskServiceProvider } from '$lib/server/services/task';
 import { UserService, userServiceProvider } from '$lib/server/services/user';
-import { Effect } from 'effect';
+import { Cause, Effect } from 'effect';
 import { dbService } from '$lib/server/db';
 import { ProjectUserError } from '$lib/errors';
 import type { UUID } from '$lib/types';
 import { getProject } from './project.remote';
+import { error } from '@sveltejs/kit';
 
 // ============ CREATE TASK ============
 
@@ -149,7 +156,7 @@ export const completeTask = command(completeTaskSchema, async (data) => {
 		throw new Error('Unauthorized');
 	}
 
-	const ret = await Effect.runPromise(
+	const ret = await Effect.runPromiseExit(
 		getCompleteTaskProgram({ user, body: data }).pipe(
 			userServiceProvider,
 			projectServiceProvider,
@@ -158,9 +165,13 @@ export const completeTask = command(completeTaskSchema, async (data) => {
 		)
 	);
 
-	await getProject({ id: data.projectId, showOnlyActive: true }).refresh();
-
-	return ret;
+	if (ret._tag === 'Success') {
+		await getProject({ id: data.projectId, showOnlyActive: true }).refresh();
+		return ret.value;
+	} else {
+		const { message, status } = parseExitError(ret.cause);
+		return error(status, message);
+	}
 });
 
 // ============ UPDATE TASK ============

@@ -1,6 +1,6 @@
 import { z } from 'zod/v4';
 import { command, getRequestEvent } from '$app/server';
-import { authCommand, type UserAuthCommand } from './utils';
+import { authCommand, parseEffectError, AppError, type UserAuthCommand } from './utils';
 import { StoreService, storeServiceProvider } from '$lib/server/services/store';
 import { projectServiceProvider } from '$lib/server/services/project';
 import { UserService, userServiceProvider } from '$lib/server/services/user';
@@ -45,7 +45,7 @@ export const addStoreItem = command(addStoreItemSchema, async (data) => {
 		throw new Error('Unauthorized');
 	}
 
-	const ret = await Effect.runPromise(
+	const ret = await Effect.runPromiseExit(
 		getAddStoreItemProgram({ user, body: data }).pipe(
 			userServiceProvider,
 			projectServiceProvider,
@@ -54,7 +54,12 @@ export const addStoreItem = command(addStoreItemSchema, async (data) => {
 		)
 	);
 
-	return ret;
+	if (ret._tag === 'Success') {
+		return ret.value;
+	} else {
+		const sanitizedError = parseEffectError(ret.cause);
+		throw new AppError(sanitizedError);
+	}
 });
 
 // ============ BUY STORE ITEM ============

@@ -27,7 +27,7 @@
 				reward: Number(formData.get('reward')),
 				pid: projectId
 			});
-			await goto(`/project/${projectId}?refetch`);
+			await goto(`/project/${projectId}`);
 		} catch (e) {
 			console.error(e);
 		} finally {
