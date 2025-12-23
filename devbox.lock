@@ -5,6 +5,54 @@
       "last_modified": "2025-11-30T03:55:57Z",
       "resolved": "github:NixOS/nixpkgs/890f57fde071de281cd0e950cd80ea3e1ab55e75?lastModified=1764474957"
     },
+    "lazygit@latest": {
+      "last_modified": "2025-12-09T08:49:39Z",
+      "resolved": "github:NixOS/nixpkgs/677fbe97984e7af3175b6c121f3c39ee5c8d62c9#lazygit",
+      "source": "devbox-search",
+      "version": "0.57.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/5ksh90isk6lygyq2s1bz6s8798p2asc5-lazygit-0.57.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/5ksh90isk6lygyq2s1bz6s8798p2asc5-lazygit-0.57.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/5ay3ws17k9kqkpjhf6pb2jhq1q389pkj-lazygit-0.57.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/5ay3ws17k9kqkpjhf6pb2jhq1q389pkj-lazygit-0.57.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/n0dpf3a5nkpzc1bkfqjby7rsdsfsvbj6-lazygit-0.57.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/n0dpf3a5nkpzc1bkfqjby7rsdsfsvbj6-lazygit-0.57.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/9qy1h77adsm22sjajb9219s7ihx8swja-lazygit-0.57.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/9qy1h77adsm22sjajb9219s7ihx8swja-lazygit-0.57.0"
+        }
+      }
+    },
     "nodejs@latest": {
       "last_modified": "2025-11-23T21:50:36Z",
       "plugin_version": "0.0.2",
